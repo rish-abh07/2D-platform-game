@@ -8,7 +8,7 @@ public class PlayerMovements : MonoBehaviour
     private float dirX;
     private Animator anim;
     private SpriteRenderer spR;
-    private BoxCollider2D collider;
+    private BoxCollider2D collid;
     public bool isOnGround = true;
     private enum Movements { idle, runnning, jumping, falling};
     [SerializeField] private LayerMask jumpableGround;
@@ -18,7 +18,7 @@ public class PlayerMovements : MonoBehaviour
     {
         playerRb = GameObject.Find("Player").GetComponent<Rigidbody2D>();
         anim = GameObject.Find("Player").GetComponent<Animator>();
-        collider = GameObject.Find("Player").GetComponent<BoxCollider2D>();
+        collid = GameObject.Find("Player").GetComponent<BoxCollider2D>();
         spR = GameObject.Find("Player").GetComponent<SpriteRenderer>();
     }
 
@@ -28,7 +28,7 @@ public class PlayerMovements : MonoBehaviour
         Movements state;
         dirX = Input.GetAxisRaw("Horizontal");
         playerRb.velocity = new Vector2(dirX * 7.0f, playerRb.velocity.y);
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() )
+        if (Input.GetKeyDown(KeyCode.Space) && isOnGround )
         {
             playerRb.velocity = new Vector2(playerRb.velocity.x, 10f);
             isOnGround = false;
@@ -52,14 +52,15 @@ public class PlayerMovements : MonoBehaviour
         {
             state = Movements.jumping;
         }
-        else if (playerRb.velocity.y < -.1f)
+        else if (playerRb.velocity.y < -0.1f)
         {
             state = Movements.falling;
+            Debug.Log("Falling");
         }
         anim.SetInteger("state", (int)state);
     }
-    private bool IsGrounded()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        return Physics2D.BoxCast(collider.bounds.center, collider.bounds.size, 0f, Vector2.down, .1f, jumpableGround);
+        isOnGround = true;
     }
 }
