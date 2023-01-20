@@ -14,6 +14,7 @@ public class PlayerMovements : MonoBehaviour
     private enum Movements { idle, runnning, jumping, falling};
     [SerializeField] private LayerMask jumpableGround;
     [SerializeField] private AudioSource jumpSound;
+    [SerializeField]private PowerUp power;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +23,7 @@ public class PlayerMovements : MonoBehaviour
         anim = GameObject.Find("Player").GetComponent<Animator>();
         collid = GameObject.Find("Player").GetComponent<BoxCollider2D>();
         spR = GameObject.Find("Player").GetComponent<SpriteRenderer>();
+       
     }
 
     // Update is called once per frame
@@ -29,7 +31,15 @@ public class PlayerMovements : MonoBehaviour
     {
         Movements state;
         dirX = Input.GetAxisRaw("Horizontal");
-        playerRb.velocity = new Vector2(dirX * 7.0f, playerRb.velocity.y);
+        if (power.powerUp)
+        {
+            playerRb.velocity = new Vector2(dirX * 15.0f, playerRb.velocity.y);
+            StartCoroutine(PowerUpCountDown());
+        }
+        else
+        {
+            playerRb.velocity = new Vector2(dirX * 7.0f, playerRb.velocity.y);
+        }
         if (Input.GetKeyDown(KeyCode.Space) && isOnGround )
         {
             jumpSound.Play();
@@ -67,5 +77,10 @@ public class PlayerMovements : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         isOnGround = true;
+    }
+    IEnumerator PowerUpCountDown()
+    {
+        yield return new WaitForSeconds(1);
+        power.powerUp = false;
     }
 }

@@ -7,6 +7,8 @@ TagManager:
   - apple
   - spikes
   - traps
+  - Pineapple
+  - Info
   layers:
   - Default
   - TransparentFX

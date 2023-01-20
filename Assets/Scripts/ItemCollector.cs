@@ -17,7 +17,7 @@ public class ItemCollector : MonoBehaviour
             collectorAudio.Play();
             Destroy(collision.gameObject);
             count += 1;
-            cherries.text = "Cherries :" + count;
+            cherries.text = "Apples :" + count;
            
         }
     }
