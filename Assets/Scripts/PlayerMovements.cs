@@ -10,8 +10,10 @@ public class PlayerMovements : MonoBehaviour
     private SpriteRenderer spR;
     private BoxCollider2D collid;
     public bool isOnGround = true;
+    
     private enum Movements { idle, runnning, jumping, falling};
     [SerializeField] private LayerMask jumpableGround;
+    [SerializeField] private AudioSource jumpSound;
 
     // Start is called before the first frame update
     void Start()
@@ -30,8 +32,11 @@ public class PlayerMovements : MonoBehaviour
         playerRb.velocity = new Vector2(dirX * 7.0f, playerRb.velocity.y);
         if (Input.GetKeyDown(KeyCode.Space) && isOnGround )
         {
-            playerRb.velocity = new Vector2(playerRb.velocity.x, 10f);
+            jumpSound.Play();
+            playerRb.velocity = new Vector2(playerRb.velocity.x, 8f);
             isOnGround = false;
+            
+
         }
         if (dirX > 0f)
         {
