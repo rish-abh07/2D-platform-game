@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using System;
 
 public class PlayerMovementOne : MonoBehaviour
 {
@@ -12,10 +14,16 @@ public class PlayerMovementOne : MonoBehaviour
     private BoxCollider2D collid;
     public bool isOnGround = true;
 
+
     private enum Movements { idle, runnning, jumping, falling };
     [SerializeField] private LayerMask jumpableGround;
     [SerializeField] private AudioSource jumpSound;
-    
+    private InputControls playeractions;
+    private PlayerInput playerInput;
+    [SerializeField] private MobileJoystiick joystick;
+    public Vector2 MovementVector { get; internal set; }
+    public event Action<Vector2> OnMovement;
+
 
     // Start is called before the first frame update
     void Start()
@@ -24,33 +32,43 @@ public class PlayerMovementOne : MonoBehaviour
         anim = GameObject.Find("Player").GetComponent<Animator>();
         collid = GameObject.Find("Player").GetComponent<BoxCollider2D>();
         spR = GameObject.Find("Player").GetComponent<SpriteRenderer>();
+        playerInput = GetComponent<PlayerInput>();
+        joystick.Onmove += Move;
+      
+        
 
     }
+    private void Awake()
+    {
+        playeractions = new InputControls();
+        playeractions.Player.Enable();
+        playeractions.Player.Jump.performed += Jump;
+        
+       
+        
+    }
+
+
 
     // Update is called once per frame
     void Update()
     {
-        Movements state;
-        dirX = Input.GetAxisRaw("Horizontal");
-     
-       
-            playerRb.velocity = new Vector2(dirX * 7.0f, playerRb.velocity.y);
         
-        if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
-        {
-            jumpSound.Play();
-            playerRb.velocity = new Vector2(playerRb.velocity.x, 8f);
-            isOnGround = false;
-
-
-        }
-        if (dirX > 0f)
+        Movements state;
+        //  dirX = Input.GetAxisRaw("Horizontal");
+        Vector2 dirX = playeractions.Player.Movements.ReadValue<Vector2>();
+       
+            playerRb.velocity = new Vector2(dirX.x * 7.0f, playerRb.velocity.y);
+        
+      
+        if (dirX.x > 0f)
         {
             state = Movements.runnning;
             spR.flipX = false;
+            
 
         }
-        else if (dirX < 0f)
+        else if (dirX.x < 0f)
         {
             state = Movements.runnning;
             spR.flipX = true;
@@ -66,7 +84,7 @@ public class PlayerMovementOne : MonoBehaviour
         else if (playerRb.velocity.y < -0.1f)
         {
             state = Movements.falling;
-            Debug.Log("Falling");
+           
         }
         anim.SetInteger("state", (int)state);
     }
@@ -74,5 +92,21 @@ public class PlayerMovementOne : MonoBehaviour
     {
         isOnGround = true;
     }
+    public void Jump(InputAction.CallbackContext context)
+    {
+        
+        if(isOnGround)
+        {
+            jumpSound.Play();
+            playerRb.velocity = new Vector2(playerRb.velocity.x, 8f);
+            isOnGround = false;
+        }
+    }
+    public void Move(Vector2 input )
+    {
+        MovementVector = input;
+        OnMovement?.Invoke(MovementVector);
+    }
+
    
 }

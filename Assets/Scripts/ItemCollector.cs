@@ -10,6 +10,10 @@ public class ItemCollector : MonoBehaviour
     [SerializeField] private TextMeshProUGUI cherries;
     [SerializeField] private AudioSource collectorAudio;
     // Start is called before the first frame update
+    public void Start()
+    {
+        count = 0;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("apple"))
